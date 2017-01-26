@@ -1,0 +1,37 @@
+#!/bin/bash
+###############################################################################
+#
+# THIS SCRIPT IS USED TO SEARCH A ARTIFACTID IN ALL XML FILE UNDER CURRENT PATH
+# Auther:   York Chen
+# Date:     2017-01-25
+# Usage:    findmvn <groupId>  <artifactId>
+# Example:  findmvn "org.opendaylight.controller" "config-parent"
+#
+###############################################################################
+
+
+if [ ! $# == 2 ]; then
+   echo ""
+   echo "Usage:"
+   echo "  $0 <groupId>  <artifactId>"
+   echo "Example:"
+   echo "  $0 \"org.opendaylight.controller\" \"config-parent\""
+   echo ""
+   exit
+fi
+
+groupId=$1
+artifactId=$2
+
+groupId="<groupId>$1</groupId>"
+artifactId="<artifactId>$2</artifactId>"
+
+echo "$groupId"
+echo "$artifactId"
+
+xmls=$(find -name "*.xml" | xargs grep "$groupId" | awk 'BEGIN{FS=":";}{print $1;}' |uniq )
+
+for xml in $xmls
+do
+   awk -v groupId=$groupId -v artifactId=$artifactId -v xml=$xml 'BEGIN{find1=0;find2=0;find3=0;}{if ( $1 == groupId ) {find1=1;}if (find1==1) {if ( $1==artifactId) {find2=1;}else{if ( find2 == 1 ) {print (xml);print (groupId); print (artifactId); print ($1);print ("");find1=0;find2=0;}}}}' $xml
+done
